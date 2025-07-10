@@ -1,0 +1,32 @@
+from selenium.webdriver.common.by import By
+from .base_page import BasePage
+
+class TDMDashboardPage(BasePage):
+
+    #Locatorlar
+    DASHBOARD_HEADER = (By.CSS_SELECTOR,".header-page-title")
+    INFO_BUTTON = (By.XPATH,"//button[contains(@class, 'user-icon')][1]")
+
+
+    def __init__(self,driver):
+        super().__init__(driver)
+
+    def is_dashboard_loaded(self):
+        """Dashboard'ın yüklendiğini kontrol et"""
+
+        header_element = self.find_element(self.DASHBOARD_HEADER)
+        if header_element and "Dashboard" in header_element.text:
+            return True
+        return False
+
+    def click_info_button(self):
+        """Info butonuna tıkla"""
+        print("info butonuna tıklanıyor")
+
+        success = self.click_element(self.INFO_BUTTON)
+        if success:
+             print("Info butonuna başarıyla tıklandı")
+        else:
+              print("Info butonuna tıklanamadı")
+        return success
+

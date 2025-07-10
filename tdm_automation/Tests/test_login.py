@@ -1,3 +1,5 @@
+import time
+
 import pytest
 import os
 from dotenv import load_dotenv
@@ -114,7 +116,7 @@ class TestLoginScenarios:
         if "new test data manager" in page_source:
             print("New Test Data Manager bulundu!")
 
-            tdm_locator = (By.XPATH, "//li[@title='New Test Data Manager'][1]")
+            tdm_locator = (By.XPATH, "//li[@title='New Test Data Manager'][2]")
             success = self.login_page.click_element(tdm_locator)
 
             assert success, "TDM elementine tıklanamadı"
