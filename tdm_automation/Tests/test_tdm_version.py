@@ -9,6 +9,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from Pages.login_page import LoginPage
 from Pages.tdm_dashboard_page import TDMDashboardPage
 from Pages.product_info_page import ProductInfoPage
+from selenium.webdriver.chrome.options import Options
+
 
 load_dotenv()
 
@@ -46,7 +48,6 @@ class TestTDMVersionControl:
         assert success, "TDM elementine tıklanamadı"
 
         # Info butonuna tıkla
-        time.sleep(3)
         info_button_clicked = self.dashboard_page.click_info_button()
         assert info_button_clicked, "Info butonuna tıklanamadı"
 

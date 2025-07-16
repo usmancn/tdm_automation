@@ -1,5 +1,4 @@
 import time
-
 import pytest
 import os
 from dotenv import load_dotenv
@@ -8,6 +7,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from Pages.login_page import LoginPage
+from selenium.webdriver.chrome.options import Options
 
 load_dotenv()
 
