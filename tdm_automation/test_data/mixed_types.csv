@@ -1,0 +1,4 @@
+List_Name,List_Age,List_Salary,List_Date,List_Active,List_Score
+List_Ahmet,25,50000.75,2023-01-15,true,95.5
+List_Ayşe,thirty,invalid_salary,invalid_date,maybe,not_number
+List_Mehmet,-5,0,1900-01-01,false,100.0

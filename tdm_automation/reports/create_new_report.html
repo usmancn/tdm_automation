@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title id="head-title">create_new_report.html</title>
+      <style type="text/css">body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  /* do not increase min-width as some may use split screens */
+  min-width: 800px;
+  color: #999;
+}
+
+h1 {
+  font-size: 24px;
+  color: black;
+}
+
+h2 {
+  font-size: 16px;
+  color: black;
+}
+
+p {
+  color: black;
+}
+
+a {
+  color: #999;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+/******************************
+ * SUMMARY INFORMATION
+ ******************************/
+#environment td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  vertical-align: top;
+}
+#environment tr:nth-child(odd) {
+  background-color: #f6f6f6;
+}
+#environment ul {
+  margin: 0;
+  padding: 0 20px;
+}
+
+/******************************
+ * TEST RESULT COLORS
+ ******************************/
+span.passed,
+.passed .col-result {
+  color: green;
+}
+
+span.skipped,
+span.xfailed,
+span.rerun,
+.skipped .col-result,
+.xfailed .col-result,
+.rerun .col-result {
+  color: orange;
+}
+
+span.error,
+span.failed,
+span.xpassed,
+.error .col-result,
+.failed .col-result,
+.xpassed .col-result {
+  color: red;
+}
+
+.col-links__extra {
+  margin-right: 3px;
+}
+
+/******************************
+ * RESULTS TABLE
+ *
+ * 1. Table Layout
+ * 2. Extra
+ * 3. Sorting items
+ *
+ ******************************/
+/*------------------
+ * 1. Table Layout
+ *------------------*/
+#results-table {
+  border: 1px solid #e6e6e6;
+  color: #999;
+  font-size: 12px;
+  width: 100%;
+}
+#results-table th,
+#results-table td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  text-align: left;
+}
+#results-table th {
+  font-weight: bold;
+}
+
+/*------------------
+ * 2. Extra
+ *------------------*/
+.logwrapper {
+  max-height: 230px;
+  overflow-y: scroll;
+  background-color: #e6e6e6;
+}
+.logwrapper.expanded {
+  max-height: none;
+}
+.logwrapper.expanded .logexpander:after {
+  content: "collapse [-]";
+}
+.logwrapper .logexpander {
+  z-index: 1;
+  position: sticky;
+  top: 10px;
+  width: max-content;
+  border: 1px solid;
+  border-radius: 3px;
+  padding: 5px 7px;
+  margin: 10px 0 10px calc(100% - 80px);
+  cursor: pointer;
+  background-color: #e6e6e6;
+}
+.logwrapper .logexpander:after {
+  content: "expand [+]";
+}
+.logwrapper .logexpander:hover {
+  color: #000;
+  border-color: #000;
+}
+.logwrapper .log {
+  min-height: 40px;
+  position: relative;
+  top: -50px;
+  height: calc(100% + 50px);
+  border: 1px solid #e6e6e6;
+  color: black;
+  display: block;
+  font-family: "Courier New", Courier, monospace;
+  padding: 5px;
+  padding-right: 80px;
+  white-space: pre-wrap;
+}
+
+div.media {
+  border: 1px solid #e6e6e6;
+  float: right;
+  height: 240px;
+  margin: 0 5px;
+  overflow: hidden;
+  width: 320px;
+}
+
+.media-container {
+  display: grid;
+  grid-template-columns: 25px auto 25px;
+  align-items: center;
+  flex: 1 1;
+  overflow: hidden;
+  height: 200px;
+}
+
+.media-container--fullscreen {
+  grid-template-columns: 0px auto 0px;
+}
+
+.media-container__nav--right,
+.media-container__nav--left {
+  text-align: center;
+  cursor: pointer;
+}
+
+.media-container__viewport {
+  cursor: pointer;
+  text-align: center;
+  height: inherit;
+}
+.media-container__viewport img,
+.media-container__viewport video {
+  object-fit: cover;
+  width: 100%;
+  max-height: 100%;
+}
+
+.media__name,
+.media__counter {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex: 0 0 25px;
+  align-items: center;
+}
+
+.collapsible td:not(.col-links) {
+  cursor: pointer;
+}
+.collapsible td:not(.col-links):hover::after {
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.col-result {
+  width: 130px;
+}
+.col-result:hover::after {
+  content: " (hide details)";
+}
+
+.col-result.collapsed:hover::after {
+  content: " (show details)";
+}
+
+#environment-header h2:hover::after {
+  content: " (hide details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+#environment-header.collapsed h2:hover::after {
+  content: " (show details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/*------------------
+ * 3. Sorting items
+ *------------------*/
+.sortable {
+  cursor: pointer;
+}
+.sortable.desc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: -12.5px;
+  border: 10px solid #4caf50;
+  border-bottom: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+.sortable.asc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: 12.5px;
+  border: 10px solid #4caf50;
+  border-top: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+
+.hidden, .summary__reload__button.hidden {
+  display: none;
+}
+
+.summary__data {
+  flex: 0 0 550px;
+}
+.summary__reload {
+  flex: 1 1;
+  display: flex;
+  justify-content: center;
+}
+.summary__reload__button {
+  flex: 0 0 300px;
+  display: flex;
+  color: white;
+  font-weight: bold;
+  background-color: #4caf50;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.summary__reload__button:hover {
+  background-color: #46a049;
+}
+.summary__spacer {
+  flex: 0 0 550px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+}
+
+.filters,
+.collapse {
+  display: flex;
+  align-items: center;
+}
+.filters button,
+.collapse button {
+  color: #999;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.filters button:hover,
+.collapse button:hover {
+  color: #ccc;
+}
+
+.filter__label {
+  margin-right: 10px;
+}
+
+      </style>
+    
+  </head>
+  <body>
+    <h1 id="title">create_new_report.html</h1>
+    <p>Report generated on 17-Jul-2025 at 13:57:05 by <a href="https://pypi.python.org/pypi/pytest-html">pytest-html</a>
+        v4.1.1</p>
+    <div id="environment-header">
+      <h2>Environment</h2>
+    </div>
+    <table id="environment"></table>
+    <!-- TEMPLATES -->
+      <template id="template_environment_row">
+      <tr>
+        <td></td>
+        <td></td>
+      </tr>
+    </template>
+    <template id="template_results-table__body--empty">
+      <tbody class="results-table-row">
+        <tr id="not-found-message">
+          <td colspan="4">No results found. Check the filters.</th>
+        </tr>
+    </template>
+    <template id="template_results-table__tbody">
+      <tbody class="results-table-row">
+        <tr class="collapsible">
+        </tr>
+        <tr class="extras-row">
+          <td class="extra" colspan="4">
+            <div class="extraHTML"></div>
+            <div class="media">
+              <div class="media-container">
+                  <div class="media-container__nav--left"><</div>
+                  <div class="media-container__viewport">
+                    <img src="" />
+                    <video controls>
+                      <source src="" type="video/mp4">
+                    </video>
+                  </div>
+                  <div class="media-container__nav--right">></div>
+                </div>
+                <div class="media__name"></div>
+                <div class="media__counter"></div>
+            </div>
+            <div class="logwrapper">
+              <div class="logexpander"></div>
+              <div class="log"></div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </template>
+    <!-- END TEMPLATES -->
+    <div class="summary">
+      <div class="summary__data">
+        <h2>Summary</h2>
+        <div class="additional-summary prefix">
+        </div>
+        <p class="run-count">22 tests took 00:04:24.</p>
+        <p class="filter">(Un)check the boxes to filter the results.</p>
+        <div class="summary__reload">
+          <div class="summary__reload__button hidden" onclick="location.reload()">
+            <div>There are still tests running. <br />Reload this page to get the latest results!</div>
+          </div>
+        </div>
+        <div class="summary__spacer"></div>
+        <div class="controls">
+          <div class="filters">
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="failed" disabled/>
+            <span class="failed">0 Failed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="passed" />
+            <span class="passed">22 Passed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="skipped" disabled/>
+            <span class="skipped">0 Skipped,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xfailed" disabled/>
+            <span class="xfailed">0 Expected failures,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xpassed" disabled/>
+            <span class="xpassed">0 Unexpected passes,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="error" disabled/>
+            <span class="error">0 Errors,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="rerun" disabled/>
+            <span class="rerun">0 Reruns</span>
+          </div>
+          <div class="collapse">
+            <button id="show_all_details">Show all details</button>&nbsp;/&nbsp;<button id="hide_all_details">Hide all details</button>
+          </div>
+        </div>
+      </div>
+      <div class="additional-summary summary">
+      </div>
+      <div class="additional-summary postfix">
+      </div>
+    </div>
+    <table id="results-table">
+      <thead id="results-table-head">
+        <tr>
+          <th class="sortable" data-column-type="result">Result</th>
+          <th class="sortable" data-column-type="testId">Test</th>
+          <th class="sortable" data-column-type="duration">Duration</th>
+          <th>Links</th>
+        </tr>
+      </thead>
+    </table>
+  </body>
+  <footer>
+    <div id="data-container" data-jsonblob="{&#34;environment&#34;: {&#34;Python&#34;: &#34;3.13.1&#34;, &#34;Platform&#34;: &#34;Windows-11-10.0.26100-SP0&#34;, &#34;Packages&#34;: {&#34;pytest&#34;: &#34;8.4.1&#34;, &#34;pluggy&#34;: &#34;1.6.0&#34;}, &#34;Plugins&#34;: {&#34;html&#34;: &#34;4.1.1&#34;, &#34;metadata&#34;: &#34;3.1.1&#34;}, &#34;JAVA_HOME&#34;: &#34;C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.12.7-hotspot\\&#34;}, &#34;tests&#34;: {&#34;Tests/test_create_new.py::TestCreateNewTab::test_TC035_integer_type_with_single_dot&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC035_integer_type_with_single_dot&#34;, &#34;duration&#34;: &#34;00:01:03&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC035_integer_type_with_single_dot&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:01:03&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n=== CLASS SETUP: Login i\u015flemleri yap\u0131l\u0131yor ===\nFlow Man butonuna ba\u015far\u0131yla t\u0131kland\u0131\nList Generator butonuna ba\u015far\u0131yla t\u0131kland\u0131\n=== CLASS SETUP TAMAMLANDI: Login ve navigation ba\u015far\u0131l\u0131 ===\n\n--- Test ba\u015fl\u0131yor: test_TC035_integer_type_with_single_dot ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC035: Integer type ile tek nokta testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field&amp;#x27;\u0131na &amp;#x27;ListName_1752749617&amp;#x27; giriliyor\nType &amp;#x27;integer&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nValue &amp;#x27;13.2&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;13.2&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;5.7&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;5.7&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nTest ba\u015far\u0131l\u0131: Integer type tek nokta kabul ediyor, liste olu\u015fturuldu\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC035_integer_type_with_single_dot ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC036_integer_type_with_double_dot&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC036_integer_type_with_double_dot&#34;, &#34;duration&#34;: &#34;00:00:07&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC036_integer_type_with_double_dot&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:07&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC036_integer_type_with_double_dot ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC036: Integer type ile \u00e7ift nokta testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field&amp;#x27;\u0131na &amp;#x27;ListName_1752749624&amp;#x27; giriliyor\nType &amp;#x27;integer&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nValues field&amp;#x27;\u0131na &amp;#x27;13.2.5&amp;#x27; giriliyor\nGirilen: &amp;#x27;13.2.5&amp;#x27; \u2192 Sistem yazd\u0131: &amp;#x27;13.25&amp;#x27;\n+ butonuna t\u0131klan\u0131yor\nValues field&amp;#x27;\u0131na &amp;#x27;5.7.9&amp;#x27; giriliyor\nGirilen: &amp;#x27;5.7.9&amp;#x27; \u2192 Sistem yazd\u0131: &amp;#x27;5.79&amp;#x27;\n+ butonuna t\u0131klan\u0131yor\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nTest ba\u015far\u0131l\u0131: Integer type ikinci noktay\u0131 yazd\u0131rm\u0131yor (13.2.5 \u2192 13.25)\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC036_integer_type_with_double_dot ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC037_integer_type_with_fronttext&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC037_integer_type_with_fronttext&#34;, &#34;duration&#34;: &#34;00:00:07&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC037_integer_type_with_fronttext&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:07&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC037_integer_type_with_fronttext ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC037: Integer type ile ba\u015f\u0131na text koyma testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field&amp;#x27;\u0131na &amp;#x27;ListName_1752749631&amp;#x27; giriliyor\nType &amp;#x27;integer&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nValues field&amp;#x27;\u0131na &amp;#x27;abc13.2&amp;#x27; giriliyor\nGirilen: &amp;#x27;abc13.2&amp;#x27; \u2192 Sistem yazd\u0131: &amp;#x27;13.2&amp;#x27;\n+ butonuna t\u0131klan\u0131yor\nValues field&amp;#x27;\u0131na &amp;#x27;test5.7&amp;#x27; giriliyor\nGirilen: &amp;#x27;test5.7&amp;#x27; \u2192 Sistem yazd\u0131: &amp;#x27;&amp;#x27;\n+ butonuna t\u0131klan\u0131yor\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nTest ba\u015far\u0131l\u0131: Integer type textleri yazd\u0131rm\u0131yor (abc13.2 \u2192 13.2, test5.7 \u2192 5.7)\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC037_integer_type_with_fronttext ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC038_integer_type_with_only_text&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC038_integer_type_with_only_text&#34;, &#34;duration&#34;: &#34;00:00:04&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC038_integer_type_with_only_text&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:04&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC038_integer_type_with_only_text ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC038: Integer type ile sadece text testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field&amp;#x27;\u0131na &amp;#x27;ListName_1752749638&amp;#x27; giriliyor\nType &amp;#x27;integer&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nValues field&amp;#x27;\u0131na &amp;#x27;abc&amp;#x27; giriliyor\nGirilen: &amp;#x27;abc&amp;#x27; \u2192 Sistem yazd\u0131: &amp;#x27;&amp;#x27; (bo\u015f)\nTest ba\u015far\u0131l\u0131: Integer type sadece text yazd\u0131rmaz, field bo\u015f kal\u0131r, SAVE disabled\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC038_integer_type_with_only_text ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC039_integer_type_with_negative_numbers&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC039_integer_type_with_negative_numbers&#34;, &#34;duration&#34;: &#34;00:00:07&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC039_integer_type_with_negative_numbers&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:07&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC039_integer_type_with_negative_numbers ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC039: Integer type ile negatif say\u0131lar testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field&amp;#x27;\u0131na &amp;#x27;ListName_1752749642&amp;#x27; giriliyor\nType &amp;#x27;integer&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nValue &amp;#x27;-13.2&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;-13.2&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nTest ba\u015far\u0131l\u0131: Integer type negatif say\u0131lar\u0131 kabul ediyor\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC039_integer_type_with_negative_numbers ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC040_decimal_type_with_double_dot&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC040_decimal_type_with_double_dot&#34;, &#34;duration&#34;: &#34;00:00:07&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC040_decimal_type_with_double_dot&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:07&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC040_decimal_type_with_double_dot ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC040: Decimal type ile \u00e7ift nokta testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field&amp;#x27;\u0131na &amp;#x27;ListName_1752749649&amp;#x27; giriliyor\nType &amp;#x27;decimal&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nValues field&amp;#x27;\u0131na &amp;#x27;3.14.15&amp;#x27; giriliyor\nGirilen: &amp;#x27;3.14.15&amp;#x27; \u2192 Sistem yazd\u0131: &amp;#x27;3.1415&amp;#x27;\n+ butonuna t\u0131klan\u0131yor\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nTest ba\u015far\u0131l\u0131: Decimal type \u00e7ift nokta ile davran\u0131\u015f test edildi\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC040_decimal_type_with_double_dot ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC041_decimal_type_with_text&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC041_decimal_type_with_text&#34;, &#34;duration&#34;: &#34;00:00:06&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC041_decimal_type_with_text&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:06&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC041_decimal_type_with_text ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC041: Decimal type ile text testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field&amp;#x27;\u0131na &amp;#x27;ListName_1752749656&amp;#x27; giriliyor\nType &amp;#x27;decimal&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nValues field&amp;#x27;\u0131na &amp;#x27;abc3.14&amp;#x27; giriliyor\nGirilen: &amp;#x27;abc3.14&amp;#x27; \u2192 Sistem yazd\u0131: &amp;#x27;3.14&amp;#x27;\n+ butonuna t\u0131klan\u0131yor\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nTest ba\u015far\u0131l\u0131: Decimal type text+decimal kombinasyonu test edildi\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC041_decimal_type_with_text ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC042_text_type_with_everything&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC042_text_type_with_everything&#34;, &#34;duration&#34;: &#34;00:00:06&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC042_text_type_with_everything&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:06&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC042_text_type_with_everything ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC042: Text type ile everything testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field&amp;#x27;\u0131na &amp;#x27;ListName_1752749662&amp;#x27; giriliyor\nType &amp;#x27;text&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nValues field&amp;#x27;\u0131na &amp;#x27;123abc!@#&amp;#x27; giriliyor\nGirilen: &amp;#x27;123abc!@#&amp;#x27; \u2192 Sistem yazd\u0131: &amp;#x27;123abc!@#&amp;#x27;\n+ butonuna t\u0131klan\u0131yor\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nTest ba\u015far\u0131l\u0131: Text type her \u015feyi kabul ediyor\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC042_text_type_with_everything ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC043_empty_value_control&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC043_empty_value_control&#34;, &#34;duration&#34;: &#34;00:00:06&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC043_empty_value_control&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:06&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC043_empty_value_control ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC043: Bo\u015f value kontrol\u00fc testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field&amp;#x27;\u0131na &amp;#x27;ListName_1752749669&amp;#x27; giriliyor\nType &amp;#x27;text&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nValues field&amp;#x27;\u0131na &amp;#x27;   &amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nBo\u015f de\u011fer kabul edildi\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nTest tamamland\u0131: Bo\u015f value kontrol\u00fc yap\u0131ld\u0131\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC043_empty_value_control ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC044_very_long_name&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC044_very_long_name&#34;, &#34;duration&#34;: &#34;00:00:09&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC044_very_long_name&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:09&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC044_very_long_name ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC044: \u00c7ok uzun name testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nUzun name karakter say\u0131s\u0131: 480\nName field&amp;#x27;\u0131na &amp;#x27;VeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListNameVeryLongListName&amp;#x27; giriliyor\nGirilen karakter: 480 \u2192 Sistem yazd\u0131: 480 karakter\nType &amp;#x27;text&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nValue &amp;#x27;test123&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;test123&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nTest ba\u015far\u0131l\u0131: Uzun name davran\u0131\u015f\u0131 test edildi\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC044_very_long_name ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC045_very_long_value&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC045_very_long_value&#34;, &#34;duration&#34;: &#34;00:00:07&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC045_very_long_value&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:07&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC045_very_long_value ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC045: \u00c7ok uzun value testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field&amp;#x27;\u0131na &amp;#x27;ListName_1752749684&amp;#x27; giriliyor\nType &amp;#x27;text&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nUzun value karakter say\u0131s\u0131: 510\nValues field&amp;#x27;\u0131na &amp;#x27;VeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueTextVeryLongValueText&amp;#x27; giriliyor\nGirilen karakter: 510 \u2192 Sistem yazd\u0131: 50 karakter\n+ butonuna t\u0131klan\u0131yor\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nTest ba\u015far\u0131l\u0131: Uzun value davran\u0131\u015f\u0131 test edildi\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC045_very_long_value ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC046_maximum_value_count&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC046_maximum_value_count&#34;, &#34;duration&#34;: &#34;00:00:53&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC046_maximum_value_count&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:53&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC046_maximum_value_count ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC046: Maksimum value say\u0131s\u0131 testi (100 value) ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field&amp;#x27;\u0131na &amp;#x27;ListName_1752749691&amp;#x27; giriliyor\nType &amp;#x27;text&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\n100 value ekleme ba\u015fl\u0131yor...\nValue &amp;#x27;value000&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value000&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value001&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value001&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value002&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value002&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value003&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value003&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value004&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value004&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value005&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value005&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value006&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value006&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value007&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value007&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value008&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value008&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value009&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value009&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nProgress: 10/100 value eklendi\nValue &amp;#x27;value010&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value010&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value011&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value011&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value012&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value012&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value013&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value013&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value014&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value014&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value015&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value015&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value016&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value016&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value017&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value017&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value018&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value018&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value019&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value019&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nProgress: 20/100 value eklendi\nValue &amp;#x27;value020&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value020&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value021&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value021&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value022&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value022&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value023&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value023&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value024&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value024&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value025&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value025&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value026&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value026&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value027&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value027&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value028&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value028&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value029&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value029&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nProgress: 30/100 value eklendi\nValue &amp;#x27;value030&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value030&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value031&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value031&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value032&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value032&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value033&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value033&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value034&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value034&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value035&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value035&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value036&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value036&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value037&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value037&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value038&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value038&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value039&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value039&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nProgress: 40/100 value eklendi\nValue &amp;#x27;value040&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value040&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value041&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value041&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value042&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value042&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value043&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value043&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value044&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value044&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value045&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value045&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value046&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value046&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value047&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value047&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value048&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value048&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value049&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value049&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nProgress: 50/100 value eklendi\nValue &amp;#x27;value050&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value050&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value051&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value051&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value052&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value052&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value053&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value053&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value054&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value054&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value055&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value055&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value056&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value056&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value057&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value057&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value058&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value058&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value059&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value059&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nProgress: 60/100 value eklendi\nValue &amp;#x27;value060&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value060&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value061&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value061&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value062&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value062&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value063&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value063&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value064&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value064&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value065&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value065&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value066&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value066&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value067&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value067&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value068&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value068&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value069&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value069&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nProgress: 70/100 value eklendi\nValue &amp;#x27;value070&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value070&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value071&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value071&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value072&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value072&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value073&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value073&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value074&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value074&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value075&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value075&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value076&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value076&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value077&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value077&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value078&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value078&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value079&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value079&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nProgress: 80/100 value eklendi\nValue &amp;#x27;value080&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value080&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value081&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value081&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value082&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value082&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value083&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value083&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value084&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value084&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value085&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value085&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value086&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value086&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value087&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value087&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value088&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value088&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value089&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value089&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nProgress: 90/100 value eklendi\nValue &amp;#x27;value090&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value090&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value091&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value091&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value092&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value092&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value093&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value093&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value094&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value094&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value095&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value095&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value096&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value096&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value097&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value097&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value098&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value098&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;value099&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value099&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nProgress: 100/100 value eklendi\nToplam eklenen value: 100/100\nGe\u00e7en s\u00fcre: 46.61 saniye\nOrtalama s\u00fcre per value: 0.466 saniye\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nTest ba\u015far\u0131l\u0131: Maksimum value say\u0131s\u0131 test edildi\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC046_maximum_value_count ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC047_duplicate_values&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC047_duplicate_values&#34;, &#34;duration&#34;: &#34;00:00:09&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC047_duplicate_values&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:09&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC047_duplicate_values ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC047: Duplicate values testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field&amp;#x27;\u0131na &amp;#x27;ListName_1752749744&amp;#x27; giriliyor\nType &amp;#x27;text&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nValue &amp;#x27;test123&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;test123&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\n\u0130lk &amp;#x27;test123&amp;#x27; eklendi\nValues field&amp;#x27;\u0131na &amp;#x27;test123&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nError modal a\u00e7\u0131ld\u0131: &amp;#x27;The values you add must be different from each other&amp;#x27;\nValue &amp;#x27;test456&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;test456&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nTest ba\u015far\u0131l\u0131: Duplicate values reddediliyor, error modal g\u00f6steriliyor\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC047_duplicate_values ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC048_sql_injection_name&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC048_sql_injection_name&#34;, &#34;duration&#34;: &#34;00:00:07&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC048_sql_injection_name&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:07&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC048_sql_injection_name ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC048: SQL injection name testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nSQL payload: &amp;#x27;; DROP TABLE lists; --\nName field&amp;#x27;\u0131na &amp;#x27;&amp;#x27;; DROP TABLE lists; --&amp;#x27; giriliyor\nGirilen: &amp;#x27;&amp;#x27;; DROP TABLE lists; --&amp;#x27; \u2192 Sistem yazd\u0131: &amp;#x27;&amp;#x27;; DROP TABLE lists; --&amp;#x27;\nType &amp;#x27;text&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nValue &amp;#x27;test123&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;test123&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nSistem stabil - SQL injection etkisiz\nTest tamamland\u0131: SQL injection name kontrol\u00fc yap\u0131ld\u0131\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC048_sql_injection_name ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC049_sql_injection_values&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC049_sql_injection_values&#34;, &#34;duration&#34;: &#34;00:00:07&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC049_sql_injection_values&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:07&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC049_sql_injection_values ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC049: SQL injection values testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field&amp;#x27;\u0131na &amp;#x27;ListName_1752749760&amp;#x27; giriliyor\nType &amp;#x27;text&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nSQL payload: &amp;#x27;; DROP TABLE data; --\nValues field&amp;#x27;\u0131na &amp;#x27;&amp;#x27;; DROP TABLE data; --&amp;#x27; giriliyor\nGirilen: &amp;#x27;&amp;#x27;; DROP TABLE data; --&amp;#x27; \u2192 Sistem yazd\u0131: &amp;#x27;&amp;#x27;; DROP TABLE data; --&amp;#x27;\n+ butonuna t\u0131klan\u0131yor\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nSistem stabil - SQL injection etkisiz\nTest tamamland\u0131: SQL injection values kontrol\u00fc yap\u0131ld\u0131\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC049_sql_injection_values ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC050_xss_injection_name&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC050_xss_injection_name&#34;, &#34;duration&#34;: &#34;00:00:06&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC050_xss_injection_name&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:06&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC050_xss_injection_name ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC050: XSS injection name testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nXSS payload: &amp;lt;script&amp;gt;alert(&amp;#x27;xss&amp;#x27;)&amp;lt;/script&amp;gt;\nName field&amp;#x27;\u0131na &amp;#x27;&amp;lt;script&amp;gt;alert(&amp;#x27;xss&amp;#x27;)&amp;lt;/script&amp;gt;&amp;#x27; giriliyor\nGirilen: &amp;#x27;&amp;lt;script&amp;gt;alert(&amp;#x27;xss&amp;#x27;)&amp;lt;/script&amp;gt;&amp;#x27; \u2192 Sistem yazd\u0131: &amp;#x27;&amp;lt;script&amp;gt;alert(&amp;#x27;xss&amp;#x27;)&amp;lt;/script&amp;gt;&amp;#x27;\nType &amp;#x27;text&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nValue &amp;#x27;test123&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;test123&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nTest tamamland\u0131: XSS injection name kontrol\u00fc yap\u0131ld\u0131\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC050_xss_injection_name ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC051_html_injection_values&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC051_html_injection_values&#34;, &#34;duration&#34;: &#34;00:00:07&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC051_html_injection_values&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:07&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC051_html_injection_values ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC051: HTML injection values testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field&amp;#x27;\u0131na &amp;#x27;ListName_1752749774&amp;#x27; giriliyor\nType &amp;#x27;text&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nHTML payload: &amp;lt;img src=x onerror=alert(1)&amp;gt;\nValues field&amp;#x27;\u0131na &amp;#x27;&amp;lt;img src=x onerror=alert(1)&amp;gt;&amp;#x27; giriliyor\nGirilen: &amp;#x27;&amp;lt;img src=x onerror=alert(1)&amp;gt;&amp;#x27; \u2192 Sistem yazd\u0131: &amp;#x27;&amp;lt;img src=x onerror=alert(1)&amp;gt;&amp;#x27;\n+ butonuna t\u0131klan\u0131yor\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nTest tamamland\u0131: HTML injection values kontrol\u00fc yap\u0131ld\u0131\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC051_html_injection_values ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC052_duplicate_list_names&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC052_duplicate_list_names&#34;, &#34;duration&#34;: &#34;00:00:14&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC052_duplicate_list_names&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:14&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC052_duplicate_list_names ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC052: Duplicate list names testi ===\n\u0130lk liste olu\u015fturuluyor...\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field&amp;#x27;\u0131na &amp;#x27;DuplicateTest_1752749783&amp;#x27; giriliyor\nType &amp;#x27;text&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nValue &amp;#x27;value1&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value1&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nSAVE butonuna t\u0131klan\u0131yor (New/File)\n\u0130lk liste &amp;#x27;DuplicateTest_1752749783&amp;#x27; olu\u015fturuldu\n\u0130kinci liste ayn\u0131 isimle olu\u015fturuluyor...\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field&amp;#x27;\u0131na &amp;#x27;DuplicateTest_1752749783&amp;#x27; giriliyor\nType &amp;#x27;text&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nValue &amp;#x27;value2&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;value2&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nDuplicate name hatas\u0131 al\u0131nd\u0131\nTest tamamland\u0131: Duplicate list names kontrol\u00fc yap\u0131ld\u0131\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC052_duplicate_list_names ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC053_non_latin_characters&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC053_non_latin_characters&#34;, &#34;duration&#34;: &#34;00:00:06&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC053_non_latin_characters&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:06&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC053_non_latin_characters ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC053: Latin alfabesinden olmayan karakterler testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nNon-Latin karakterler: \u0442\u0435\u0441\u0442_\u5217\u8868_\u0627\u062e\u062a\u0628\u0627\u0631_\u30c6\u30b9\u30c8_\ud55c\uad6d\uc5b4\nName field&amp;#x27;\u0131na &amp;#x27;\u0442\u0435\u0441\u0442_\u5217\u8868_\u0627\u062e\u062a\u0628\u0627\u0631_\u30c6\u30b9\u30c8_\ud55c\uad6d\uc5b4&amp;#x27; giriliyor\nGirilen: &amp;#x27;\u0442\u0435\u0441\u0442_\u5217\u8868_\u0627\u062e\u062a\u0628\u0627\u0631_\u30c6\u30b9\u30c8_\ud55c\uad6d\uc5b4&amp;#x27; \u2192 Sistem yazd\u0131: &amp;#x27;\u0442\u0435\u0441\u0442_\u5217\u8868_\u0627\u062e\u062a\u0628\u0627\u0631_\u30c6\u30b9\u30c8_\ud55c\uad6d\uc5b4&amp;#x27;\nType &amp;#x27;text&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nValues field&amp;#x27;\u0131na &amp;#x27;\u6d4b\u8bd5\u503c_\u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435_\u0642\u064a\u0645\u0629&amp;#x27; giriliyor\nValue girilen: &amp;#x27;\u6d4b\u8bd5\u503c_\u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435_\u0642\u064a\u0645\u0629&amp;#x27; \u2192 Sistem yazd\u0131: &amp;#x27;\u6d4b\u8bd5\u503c_\u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435_\u0642\u064a\u0645\u0629&amp;#x27;\n+ butonuna t\u0131klan\u0131yor\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nTest tamamland\u0131: Latin alfabesinden olmayan karakterler kontrol\u00fc yap\u0131ld\u0131\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC053_non_latin_characters ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC054_empty_name_control&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC054_empty_name_control&#34;, &#34;duration&#34;: &#34;00:00:07&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC054_empty_name_control&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:07&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC054_empty_name_control ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC054: Bo\u015f name kontrol\u00fc testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field bo\u015f b\u0131rak\u0131l\u0131yor\nType &amp;#x27;text&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nValue &amp;#x27;test123&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;test123&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nSAVE butonu aktif\nSAVE butonuna t\u0131klan\u0131yor (New/File)\nTest ba\u015far\u0131l\u0131: Bo\u015f name reddediliyor - SAVE aktif ama validation hatas\u0131\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC054_empty_name_control ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC055_browser_refresh&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC055_browser_refresh&#34;, &#34;duration&#34;: &#34;00:00:10&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC055_browser_refresh&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:10&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC055_browser_refresh ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC055: Browser refresh testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field&amp;#x27;\u0131na &amp;#x27;ListName_1752749807&amp;#x27; giriliyor\nType &amp;#x27;text&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nValue &amp;#x27;test123&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;test123&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\n*** BROWSER REFRESH ***\nRefresh sonras\u0131 name: &amp;#x27;&amp;#x27;\nTest ba\u015far\u0131l\u0131: Browser refresh form verilerini temizliyor\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC055_browser_refresh ---\n&#34;}], &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC056_type_change_after_values&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;Tests/test_create_new.py::TestCreateNewTab::test_TC056_type_change_after_values&#34;, &#34;duration&#34;: &#34;00:00:08&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;Tests/test_create_new.py::TestCreateNewTab::test_TC056_type_change_after_values&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:08&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;---------------------------- Captured stdout setup -----------------------------\n\n--- Test ba\u015fl\u0131yor: test_TC056_type_change_after_values ---\n\n----------------------------- Captured stdout call -----------------------------\n\nTC056: Type de\u011fi\u015ftirme sonras\u0131 values testi ===\nNew List Generator butonuna t\u0131klan\u0131yor\nNew butonuna ba\u015far\u0131yla t\u0131kland\u0131\nCreate New tab&amp;#x27;\u0131na t\u0131klan\u0131yor\nName field&amp;#x27;\u0131na &amp;#x27;ListName_1752749817&amp;#x27; giriliyor\nType &amp;#x27;text&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\n\u0130lk type: TEXT se\u00e7ildi\nValue &amp;#x27;abc123&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;abc123&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nValue &amp;#x27;hello&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;hello&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nText values eklendi: abc123, hello\nTYPE DE\u011e\u0130\u015eT\u0130R\u0130L\u0130YOR: TEXT \u2192 INTEGER\nType &amp;#x27;integer&amp;#x27; se\u00e7iliyor\nType dropdown a\u00e7\u0131l\u0131yor\nMevcut values korundu\nValue &amp;#x27;123&amp;#x27; ekleniyor\nValues field&amp;#x27;\u0131na &amp;#x27;123&amp;#x27; giriliyor\n+ butonuna t\u0131klan\u0131yor\nYeni Integer value eklendi: 123\nSAVE butonu: Aktif\nTest tamamland\u0131: Type de\u011fi\u015fikli\u011fi test edildi\n--------------------------- Captured stdout teardown ---------------------------\n--- Test bitti: test_TC056_type_change_after_values ---\n\n=== CLASS TEARDOWN: Driver kapat\u0131l\u0131yor ===\n&#34;}]}, &#34;renderCollapsed&#34;: [&#34;passed&#34;], &#34;initialSort&#34;: &#34;result&#34;, &#34;title&#34;: &#34;create_new_report.html&#34;}"></div>
+    <script>
+      (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+const { getCollapsedCategory, setCollapsedIds } = require('./storage.js')
+
+class DataManager {
+    setManager(data) {
+        const collapsedCategories = [...getCollapsedCategory(data.renderCollapsed)]
+        const collapsedIds = []
+        const tests = Object.values(data.tests).flat().map((test, index) => {
+            const collapsed = collapsedCategories.includes(test.result.toLowerCase())
+            const id = `test_${index}`
+            if (collapsed) {
+                collapsedIds.push(id)
+            }
+            return {
+                ...test,
+                id,
+                collapsed,
+            }
+        })
+        const dataBlob = { ...data, tests }
+        this.data = { ...dataBlob }
+        this.renderData = { ...dataBlob }
+        setCollapsedIds(collapsedIds)
+    }
+
+    get allData() {
+        return { ...this.data }
+    }
+
+    resetRender() {
+        this.renderData = { ...this.data }
+    }
+
+    setRender(data) {
+        this.renderData.tests = [...data]
+    }
+
+    toggleCollapsedItem(id) {
+        this.renderData.tests = this.renderData.tests.map((test) =>
+            test.id === id ? { ...test, collapsed: !test.collapsed } : test,
+        )
+    }
+
+    set allCollapsed(collapsed) {
+        this.renderData = { ...this.renderData, tests: [...this.renderData.tests.map((test) => (
+            { ...test, collapsed }
+        ))] }
+    }
+
+    get testSubset() {
+        return [...this.renderData.tests]
+    }
+
+    get environment() {
+        return this.renderData.environment
+    }
+
+    get initialSort() {
+        return this.data.initialSort
+    }
+}
+
+module.exports = {
+    manager: new DataManager(),
+}
+
+},{"./storage.js":8}],2:[function(require,module,exports){
+const mediaViewer = require('./mediaviewer.js')
+const templateEnvRow = document.getElementById('template_environment_row')
+const templateResult = document.getElementById('template_results-table__tbody')
+
+function htmlToElements(html) {
+    const temp = document.createElement('template')
+    temp.innerHTML = html
+    return temp.content.childNodes
+}
+
+const find = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return elem.querySelector(selector)
+}
+
+const findAll = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return [...elem.querySelectorAll(selector)]
+}
+
+const dom = {
+    getStaticRow: (key, value) => {
+        const envRow = templateEnvRow.content.cloneNode(true)
+        const isObj = typeof value === 'object' && value !== null
+        const values = isObj ? Object.keys(value).map((k) => `${k}: ${value[k]}`) : null
+
+        const valuesElement = htmlToElements(
+            values ? `<ul>${values.map((val) => `<li>${val}</li>`).join('')}<ul>` : `<div>${value}</div>`)[0]
+        const td = findAll('td', envRow)
+        td[0].textContent = key
+        td[1].appendChild(valuesElement)
+
+        return envRow
+    },
+    getResultTBody: ({ testId, id, log, extras, resultsTableRow, tableHtml, result, collapsed }) => {
+        const resultBody = templateResult.content.cloneNode(true)
+        resultBody.querySelector('tbody').classList.add(result.toLowerCase())
+        resultBody.querySelector('tbody').id = testId
+        resultBody.querySelector('.collapsible').dataset.id = id
+
+        resultsTableRow.forEach((html) => {
+            const t = document.createElement('template')
+            t.innerHTML = html
+            resultBody.querySelector('.collapsible').appendChild(t.content)
+        })
+
+        if (log) {
+            // Wrap lines starting with "E" with span.error to color those lines red
+            const wrappedLog = log.replace(/^E.*$/gm, (match) => `<span class="error">${match}</span>`)
+            resultBody.querySelector('.log').innerHTML = wrappedLog
+        } else {
+            resultBody.querySelector('.log').remove()
+        }
+
+        if (collapsed) {
+            resultBody.querySelector('.collapsible > td')?.classList.add('collapsed')
+            resultBody.querySelector('.extras-row').classList.add('hidden')
+        } else {
+            resultBody.querySelector('.collapsible > td')?.classList.remove('collapsed')
+        }
+
+        const media = []
+        extras?.forEach(({ name, format_type, content }) => {
+            if (['image', 'video'].includes(format_type)) {
+                media.push({ path: content, name, format_type })
+            }
+
+            if (format_type === 'html') {
+                resultBody.querySelector('.extraHTML').insertAdjacentHTML('beforeend', `<div>${content}</div>`)
+            }
+        })
+        mediaViewer.setup(resultBody, media)
+
+        // Add custom html from the pytest_html_results_table_html hook
+        tableHtml?.forEach((item) => {
+            resultBody.querySelector('td[class="extra"]').insertAdjacentHTML('beforeend', item)
+        })
+
+        return resultBody
+    },
+}
+
+module.exports = {
+    dom,
+    htmlToElements,
+    find,
+    findAll,
+}
+
+},{"./mediaviewer.js":6}],3:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const storageModule = require('./storage.js')
+
+const getFilteredSubSet = (filter) =>
+    manager.allData.tests.filter(({ result }) => filter.includes(result.toLowerCase()))
+
+const doInitFilter = () => {
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+}
+
+const doFilter = (type, show) => {
+    if (show) {
+        storageModule.showCategory(type)
+    } else {
+        storageModule.hideCategory(type)
+    }
+
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+
+    const sortColumn = storageModule.getSort()
+    doSort(sortColumn, true)
+}
+
+module.exports = {
+    doFilter,
+    doInitFilter,
+}
+
+},{"./datamanager.js":1,"./sort.js":7,"./storage.js":8}],4:[function(require,module,exports){
+const { redraw, bindEvents, renderStatic } = require('./main.js')
+const { doInitFilter } = require('./filter.js')
+const { doInitSort } = require('./sort.js')
+const { manager } = require('./datamanager.js')
+const data = JSON.parse(document.getElementById('data-container').dataset.jsonblob)
+
+function init() {
+    manager.setManager(data)
+    doInitFilter()
+    doInitSort()
+    renderStatic()
+    redraw()
+    bindEvents()
+}
+
+init()
+
+},{"./datamanager.js":1,"./filter.js":3,"./main.js":5,"./sort.js":7}],5:[function(require,module,exports){
+const { dom, find, findAll } = require('./dom.js')
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const { doFilter } = require('./filter.js')
+const {
+    getVisible,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    getSortDirection,
+    possibleFilters,
+} = require('./storage.js')
+
+const removeChildren = (node) => {
+    while (node.firstChild) {
+        node.removeChild(node.firstChild)
+    }
+}
+
+const renderStatic = () => {
+    const renderEnvironmentTable = () => {
+        const environment = manager.environment
+        const rows = Object.keys(environment).map((key) => dom.getStaticRow(key, environment[key]))
+        const table = document.getElementById('environment')
+        removeChildren(table)
+        rows.forEach((row) => table.appendChild(row))
+    }
+    renderEnvironmentTable()
+}
+
+const addItemToggleListener = (elem) => {
+    elem.addEventListener('click', ({ target }) => {
+        const id = target.parentElement.dataset.id
+        manager.toggleCollapsedItem(id)
+
+        const collapsedIds = getCollapsedIds()
+        if (collapsedIds.includes(id)) {
+            const updated = collapsedIds.filter((item) => item !== id)
+            setCollapsedIds(updated)
+        } else {
+            collapsedIds.push(id)
+            setCollapsedIds(collapsedIds)
+        }
+        redraw()
+    })
+}
+
+const renderContent = (tests) => {
+    const sortAttr = getSort(manager.initialSort)
+    const sortAsc = JSON.parse(getSortDirection())
+    const rows = tests.map(dom.getResultTBody)
+    const table = document.getElementById('results-table')
+    const tableHeader = document.getElementById('results-table-head')
+
+    const newTable = document.createElement('table')
+    newTable.id = 'results-table'
+
+    // remove all sorting classes and set the relevant
+    findAll('.sortable', tableHeader).forEach((elem) => elem.classList.remove('asc', 'desc'))
+    tableHeader.querySelector(`.sortable[data-column-type="${sortAttr}"]`)?.classList.add(sortAsc ? 'desc' : 'asc')
+    newTable.appendChild(tableHeader)
+
+    if (!rows.length) {
+        const emptyTable = document.getElementById('template_results-table__body--empty').content.cloneNode(true)
+        newTable.appendChild(emptyTable)
+    } else {
+        rows.forEach((row) => {
+            if (!!row) {
+                findAll('.collapsible td:not(.col-links', row).forEach(addItemToggleListener)
+                find('.logexpander', row).addEventListener('click',
+                    (evt) => evt.target.parentNode.classList.toggle('expanded'),
+                )
+                newTable.appendChild(row)
+            }
+        })
+    }
+
+    table.replaceWith(newTable)
+}
+
+const renderDerived = () => {
+    const currentFilter = getVisible()
+    possibleFilters.forEach((result) => {
+        const input = document.querySelector(`input[data-test-result="${result}"]`)
+        input.checked = currentFilter.includes(result)
+    })
+}
+
+const bindEvents = () => {
+    const filterColumn = (evt) => {
+        const { target: element } = evt
+        const { testResult } = element.dataset
+
+        doFilter(testResult, element.checked)
+        const collapsedIds = getCollapsedIds()
+        const updated = manager.renderData.tests.map((test) => {
+            return {
+                ...test,
+                collapsed: collapsedIds.includes(test.id),
+            }
+        })
+        manager.setRender(updated)
+        redraw()
+    }
+
+    const header = document.getElementById('environment-header')
+    header.addEventListener('click', () => {
+        const table = document.getElementById('environment')
+        table.classList.toggle('hidden')
+        header.classList.toggle('collapsed')
+    })
+
+    findAll('input[name="filter_checkbox"]').forEach((elem) => {
+        elem.addEventListener('click', filterColumn)
+    })
+
+    findAll('.sortable').forEach((elem) => {
+        elem.addEventListener('click', (evt) => {
+            const { target: element } = evt
+            const { columnType } = element.dataset
+            doSort(columnType)
+            redraw()
+        })
+    })
+
+    document.getElementById('show_all_details').addEventListener('click', () => {
+        manager.allCollapsed = false
+        setCollapsedIds([])
+        redraw()
+    })
+    document.getElementById('hide_all_details').addEventListener('click', () => {
+        manager.allCollapsed = true
+        const allIds = manager.renderData.tests.map((test) => test.id)
+        setCollapsedIds(allIds)
+        redraw()
+    })
+}
+
+const redraw = () => {
+    const { testSubset } = manager
+
+    renderContent(testSubset)
+    renderDerived()
+}
+
+module.exports = {
+    redraw,
+    bindEvents,
+    renderStatic,
+}
+
+},{"./datamanager.js":1,"./dom.js":2,"./filter.js":3,"./sort.js":7,"./storage.js":8}],6:[function(require,module,exports){
+class MediaViewer {
+    constructor(assets) {
+        this.assets = assets
+        this.index = 0
+    }
+
+    nextActive() {
+        this.index = this.index === this.assets.length - 1 ? 0 : this.index + 1
+        return [this.activeFile, this.index]
+    }
+
+    prevActive() {
+        this.index = this.index === 0 ? this.assets.length - 1 : this.index -1
+        return [this.activeFile, this.index]
+    }
+
+    get currentIndex() {
+        return this.index
+    }
+
+    get activeFile() {
+        return this.assets[this.index]
+    }
+}
+
+
+const setup = (resultBody, assets) => {
+    if (!assets.length) {
+        resultBody.querySelector('.media').classList.add('hidden')
+        return
+    }
+
+    const mediaViewer = new MediaViewer(assets)
+    const container = resultBody.querySelector('.media-container')
+    const leftArrow = resultBody.querySelector('.media-container__nav--left')
+    const rightArrow = resultBody.querySelector('.media-container__nav--right')
+    const mediaName = resultBody.querySelector('.media__name')
+    const counter = resultBody.querySelector('.media__counter')
+    const imageEl = resultBody.querySelector('img')
+    const sourceEl = resultBody.querySelector('source')
+    const videoEl = resultBody.querySelector('video')
+
+    const setImg = (media, index) => {
+        if (media?.format_type === 'image') {
+            imageEl.src = media.path
+
+            imageEl.classList.remove('hidden')
+            videoEl.classList.add('hidden')
+        } else if (media?.format_type === 'video') {
+            sourceEl.src = media.path
+
+            videoEl.classList.remove('hidden')
+            imageEl.classList.add('hidden')
+        }
+
+        mediaName.innerText = media?.name
+        counter.innerText = `${index + 1} / ${assets.length}`
+    }
+    setImg(mediaViewer.activeFile, mediaViewer.currentIndex)
+
+    const moveLeft = () => {
+        const [media, index] = mediaViewer.prevActive()
+        setImg(media, index)
+    }
+    const doRight = () => {
+        const [media, index] = mediaViewer.nextActive()
+        setImg(media, index)
+    }
+    const openImg = () => {
+        window.open(mediaViewer.activeFile.path, '_blank')
+    }
+    if (assets.length === 1) {
+        container.classList.add('media-container--fullscreen')
+    } else {
+        leftArrow.addEventListener('click', moveLeft)
+        rightArrow.addEventListener('click', doRight)
+    }
+    imageEl.addEventListener('click', openImg)
+}
+
+module.exports = {
+    setup,
+}
+
+},{}],7:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const storageModule = require('./storage.js')
+
+const genericSort = (list, key, ascending, customOrder) => {
+    let sorted
+    if (customOrder) {
+        sorted = list.sort((a, b) => {
+            const aValue = a.result.toLowerCase()
+            const bValue = b.result.toLowerCase()
+
+            const aIndex = customOrder.findIndex((item) => item.toLowerCase() === aValue)
+            const bIndex = customOrder.findIndex((item) => item.toLowerCase() === bValue)
+
+            // Compare the indices to determine the sort order
+            return aIndex - bIndex
+        })
+    } else {
+        sorted = list.sort((a, b) => a[key] === b[key] ? 0 : a[key] > b[key] ? 1 : -1)
+    }
+
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const durationSort = (list, ascending) => {
+    const parseDuration = (duration) => {
+        if (duration.includes(':')) {
+            // If it's in the format "HH:mm:ss"
+            const [hours, minutes, seconds] = duration.split(':').map(Number)
+            return (hours * 3600 + minutes * 60 + seconds) * 1000
+        } else {
+            // If it's in the format "nnn ms"
+            return parseInt(duration)
+        }
+    }
+    const sorted = list.sort((a, b) => parseDuration(a['duration']) - parseDuration(b['duration']))
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const doInitSort = () => {
+    const type = storageModule.getSort(manager.initialSort)
+    const ascending = storageModule.getSortDirection()
+    const list = manager.testSubset
+    const initialOrder = ['Error', 'Failed', 'Rerun', 'XFailed', 'XPassed', 'Skipped', 'Passed']
+
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    if (type?.toLowerCase() === 'original') {
+        manager.setRender(list)
+    } else {
+        let sortedList
+        switch (type) {
+        case 'duration':
+            sortedList = durationSort(list, ascending)
+            break
+        case 'result':
+            sortedList = genericSort(list, type, ascending, initialOrder)
+            break
+        default:
+            sortedList = genericSort(list, type, ascending)
+            break
+        }
+        manager.setRender(sortedList)
+    }
+}
+
+const doSort = (type, skipDirection) => {
+    const newSortType = storageModule.getSort(manager.initialSort) !== type
+    const currentAsc = storageModule.getSortDirection()
+    let ascending
+    if (skipDirection) {
+        ascending = currentAsc
+    } else {
+        ascending = newSortType ? false : !currentAsc
+    }
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    const list = manager.testSubset
+    const sortedList = type === 'duration' ? durationSort(list, ascending) : genericSort(list, type, ascending)
+    manager.setRender(sortedList)
+}
+
+module.exports = {
+    doInitSort,
+    doSort,
+}
+
+},{"./datamanager.js":1,"./storage.js":8}],8:[function(require,module,exports){
+const possibleFilters = [
+    'passed',
+    'skipped',
+    'failed',
+    'error',
+    'xfailed',
+    'xpassed',
+    'rerun',
+]
+
+const getVisible = () => {
+    const url = new URL(window.location.href)
+    const settings = new URLSearchParams(url.search).get('visible')
+    const lower = (item) => {
+        const lowerItem = item.toLowerCase()
+        if (possibleFilters.includes(lowerItem)) {
+            return lowerItem
+        }
+        return null
+    }
+    return settings === null ?
+        possibleFilters :
+        [...new Set(settings?.split(',').map(lower).filter((item) => item))]
+}
+
+const hideCategory = (categoryToHide) => {
+    const url = new URL(window.location.href)
+    const visibleParams = new URLSearchParams(url.search).get('visible')
+    const currentVisible = visibleParams ? visibleParams.split(',') : [...possibleFilters]
+    const settings = [...new Set(currentVisible)].filter((f) => f !== categoryToHide).join(',')
+
+    url.searchParams.set('visible', settings)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const showCategory = (categoryToShow) => {
+    if (typeof window === 'undefined') {
+        return
+    }
+    const url = new URL(window.location.href)
+    const currentVisible = new URLSearchParams(url.search).get('visible')?.split(',').filter(Boolean) ||
+        [...possibleFilters]
+    const settings = [...new Set([categoryToShow, ...currentVisible])]
+    const noFilter = possibleFilters.length === settings.length || !settings.length
+
+    noFilter ? url.searchParams.delete('visible') : url.searchParams.set('visible', settings.join(','))
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getSort = (initialSort) => {
+    const url = new URL(window.location.href)
+    let sort = new URLSearchParams(url.search).get('sort')
+    if (!sort) {
+        sort = initialSort || 'result'
+    }
+    return sort
+}
+
+const setSort = (type) => {
+    const url = new URL(window.location.href)
+    url.searchParams.set('sort', type)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getCollapsedCategory = (renderCollapsed) => {
+    let categories
+    if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href)
+        const collapsedItems = new URLSearchParams(url.search).get('collapsed')
+        switch (true) {
+        case !renderCollapsed && collapsedItems === null:
+            categories = ['passed']
+            break
+        case collapsedItems?.length === 0 || /^["']{2}$/.test(collapsedItems):
+            categories = []
+            break
+        case /^all$/.test(collapsedItems) || collapsedItems === null && /^all$/.test(renderCollapsed):
+            categories = [...possibleFilters]
+            break
+        default:
+            categories = collapsedItems?.split(',').map((item) => item.toLowerCase()) || renderCollapsed
+            break
+        }
+    } else {
+        categories = []
+    }
+    return categories
+}
+
+const getSortDirection = () => JSON.parse(sessionStorage.getItem('sortAsc')) || false
+const setSortDirection = (ascending) => sessionStorage.setItem('sortAsc', ascending)
+
+const getCollapsedIds = () => JSON.parse(sessionStorage.getItem('collapsedIds')) || []
+const setCollapsedIds = (list) => sessionStorage.setItem('collapsedIds', JSON.stringify(list))
+
+module.exports = {
+    getVisible,
+    hideCategory,
+    showCategory,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    setSort,
+    getSortDirection,
+    setSortDirection,
+    getCollapsedCategory,
+    possibleFilters,
+}
+
+},{}]},{},[4]);
+    </script>
+  </footer>
+</html>

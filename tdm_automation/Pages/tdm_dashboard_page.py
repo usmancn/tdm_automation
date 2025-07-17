@@ -7,6 +7,8 @@ class TDMDashboardPage(BasePage):
     DASHBOARD_HEADER = (By.CSS_SELECTOR,".header-page-title")
     INFO_BUTTON = (By.XPATH,"//button[contains(@class, 'user-icon')][1]")
     APPMAN_BUTTON = (By.XPATH,"//span[text()='APPLICATION MANAGEMENT']")
+    FLOWMAN_BUTTON = (By.XPATH,"//span[text()='FLOW MANAGEMENT']")
+    LISTGEN_BUTTON = (By.XPATH,"//span[text()='List Generator']")
 
 
     def __init__(self,driver):
@@ -42,4 +44,29 @@ class TDMDashboardPage(BasePage):
         else:
               print("App Man butonuna tıklanamadı")
         return success
+
+    def click_flow_managemnet(self):
+
+        """ Flow Management'a tıkla"""
+
+        success = self.click_element((self.FLOWMAN_BUTTON))
+        if success:
+            print("Flow Man butonuna başarıyla tıklandı")
+        else:
+            print("Flow Man butonuna tıklanamadı")
+        return success
+
+    def click_list_generator(self):
+
+        """ List Generator'e tıkla"""
+
+        self.click_flow_managemnet()
+        
+        success = self.click_element((self.LISTGEN_BUTTON))
+        if success:
+            print("List Generator butonuna başarıyla tıklandı")
+        else:
+            print("List Generator butonuna tıklanamadı")
+        return success
+
 

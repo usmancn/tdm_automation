@@ -1,4 +1,6 @@
 import os
+import time
+
 from dotenv import load_dotenv
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -54,5 +56,19 @@ class BasePage:
             return WebDriverWait(self.driver, timeout).until(EC.url_contains(text))
         except TimeoutException:
             print(f"URL '{text}' içermiyor. Mevcut URL: {self.driver.current_url}")
+            return False
+
+    def click_element_with_scroll(self, locator):
+        """Element'e scroll yap ve tıkla (mevcut click_element'i bozmadan)"""
+        try:
+            element = self.driver.find_element(*locator)
+            self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
+            time.sleep(0.5)
+
+            # Scroll sonrası normal click_element kullan
+            return self.click_element(locator)
+
+        except Exception as e:
+            print(f"Scroll and click hatası: {e}")
             return False
 

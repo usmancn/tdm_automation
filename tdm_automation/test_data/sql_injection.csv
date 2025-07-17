@@ -1,0 +1,4 @@
+List_Name,List_Query,List_Payload
+"List_Drop","'; DROP TABLE users; --","List_1' OR '1'='1"
+"List_Union","' UNION SELECT * FROM admin --","List_'; DELETE FROM data; --"
+"List_Normal","List_RegularName","List_RegularData"
