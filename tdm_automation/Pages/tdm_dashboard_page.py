@@ -9,6 +9,8 @@ class TDMDashboardPage(BasePage):
     APPMAN_BUTTON = (By.XPATH,"//span[text()='APPLICATION MANAGEMENT']")
     FLOWMAN_BUTTON = (By.XPATH,"//span[text()='FLOW MANAGEMENT']")
     LISTGEN_BUTTON = (By.XPATH,"//span[text()='List Generator']")
+    DATACASE_BUTTON = (By.XPATH,"//span[text()='DATA GENERATION CASE']")
+
 
 
     def __init__(self,driver):
@@ -68,5 +70,17 @@ class TDMDashboardPage(BasePage):
         else:
             print("List Generator butonuna tıklanamadı")
         return success
+
+    def click_data_generation_case(self):
+
+        """ Data Generation Case'e tıkla"""
+
+        success = self.click_element((self.DATACASE_BUTTON))
+        if success:
+            print("Data Case butonuna başarıyla tıklandı")
+        else:
+            print("Data Case butonuna tıklanamadı")
+        return success
+
 
 
