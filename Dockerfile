@@ -76,7 +76,7 @@ RUN useradd -m testuser && chown -R testuser:testuser /app
 USER testuser
 
 # Reports dizinini oluştur
-RUN mkdir -p /app/reports
+RUN mkdir -p /app/reports && chown -R testuser:testuser /app/reports
 
 # Sadece test_appmanagement.py çalıştır (diğer dosyalarda HEADLESS hatası var)
 CMD ["pytest", "tdm_automation/Tests/test_login.py", "--html=reports/report.html", "--self-contained-html", "-v"]

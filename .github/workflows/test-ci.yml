@@ -27,10 +27,10 @@ jobs:
 
     - name: Run Selenium Tests in Docker
       run: |
-        mkdir -p reports
         docker run --rm -v ${{ github.workspace }}/reports:/app/reports \
           --env-file tdm_automation/Tests/.env \
           tdm-selenium-tests
+    
 
     - name: Upload HTML Report
       uses: actions/upload-artifact@v4
