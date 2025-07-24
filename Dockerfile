@@ -78,18 +78,4 @@ RUN useradd -m testuser && chown -R testuser:testuser /app
 # Reports dizinini oluştur
 RUN mkdir -p /app/reports && chown -R testuser:testuser /app/reports
 
-# Login testini önce, diğerlerini sonra çalıştır
-# Tek satırda - GÜVENLİ
-CMD ["pytest", \
-     "tdm_automation/Tests/test_login.py", \
-     "tdm_automation/Tests/test_tdm_version.py", \
-     "tdm_automation/Tests/test_appmanagement.py", \
-     "tdm_automation/Tests/test_create_new.py", \
-     "tdm_automation/Tests/test_create_from_db.py", \
-     "tdm_automation/Tests/test_create_from_file.py", \
-     "tdm_automation/Tests/test_data_generation_case.py", \
-     "tdm_automation/Tests/test_generate_with_ai.py", \
-     "--html=reports/report.html", \
-     "--self-contained-html", \
-     "-v", \
-     "--tb=short"]
+CMD ["sh", "-c", "Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset & sleep 3 && pytest tdm_automation/Tests/ --html=reports/report.html --self-contained-html -v --tb=short"]
