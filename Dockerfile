@@ -79,9 +79,7 @@ RUN useradd -m testuser && chown -R testuser:testuser /app
 RUN mkdir -p /app/reports && chown -R testuser:testuser /app/reports
 
 CMD ["pytest", \
-     "tdm_automation/Tests/test_login.py", \
-     "tdm_automation/Tests/test_tdm_version.py", \
-     "tdm_automation/Tests/test_appmanagement.py", \
+     "tdm_automation/Tests/test_create_from_db.py", \
      "--html=reports/report.html", \
      "--self-contained-html", \
      "-v", \
