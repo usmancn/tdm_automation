@@ -78,14 +78,13 @@ RUN useradd -m testuser && chown -R testuser:testuser /app
 # Reports dizinini oluştur
 RUN mkdir -p /app/reports && chown -R testuser:testuser /app/reports
 
-CMD [
-    "pytest",
-    "tdm_automation/Tests/test_login.py",
-    "tdm_automation/Tests/test_tdm_version.py",
-    "tdm_automation/Tests/test_appmanagement.py",
-    "--html=reports/report.html",
-    "--self-contained-html",
-    "-v",
-    "--tb=short"
-]
+CMD ["pytest", \
+     "tdm_automation/Tests/test_login.py", \
+     "tdm_automation/Tests/test_tdm_version.py", \
+     "tdm_automation/Tests/test_appmanagement.py", \
+     "--html=reports/report.html", \
+     "--self-contained-html", \
+     "-v", \
+     "--tb=short"]
+
 
