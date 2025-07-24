@@ -408,6 +408,8 @@ class TestAppManagement:
         """TC_017: SQL cümleciği ile application name oluşturma"""
         print("\nTC_017: SQL cümleciği ile application name oluşturma ===")
 
+        time.sleep(1)
+
         # NEW butonuna tıkla
         new_button_clicked = self.appman_page.click_newapp_button()
         assert new_button_clicked, "NEW butonuna tıklanamadı"
