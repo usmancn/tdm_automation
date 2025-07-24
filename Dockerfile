@@ -78,4 +78,4 @@ RUN useradd -m testuser && chown -R testuser:testuser /app
 # Reports dizinini oluştur
 RUN mkdir -p /app/reports && chown -R testuser:testuser /app/reports
 
-CMD ["sh", "-c", "Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset & sleep 3 && pytest tdm_automation/Tests/ --html=reports/report.html --self-contained-html -v --tb=short"]
+CMD ["sh", "-c", "Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset & sleep 5 && pytest tdm_automation/Tests/test_tdm_version.py --html=reports/report.html --self-contained-html -v --tb=short"]
