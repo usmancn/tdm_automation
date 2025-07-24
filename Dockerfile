@@ -73,7 +73,7 @@ RUN touch /app/__init__.py && \
 
 # Test kullanıcısı oluştur (güvenlik için)
 RUN useradd -m testuser && chown -R testuser:testuser /app
-USER testuser
+# USER testuser
 
 # Reports dizinini oluştur
 RUN mkdir -p /app/reports && chown -R testuser:testuser /app/reports
