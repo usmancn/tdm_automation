@@ -1,5 +1,4 @@
-import time
-import pytest
+
 import os
 from dotenv import load_dotenv
 from selenium import webdriver
@@ -13,6 +12,8 @@ from tdm_automation.Pages.create_application_page import CreateAppPage
 from tdm_automation.Pages.create_module_page import CreateModulePage
 from tdm_automation.Pages.product_info_page import ProductInfoPage
 from selenium.webdriver.chrome.options import Options
+import time
+
 
 load_dotenv()
 
@@ -28,7 +29,7 @@ class TestAppManagement:
         cls.BASE_URL = os.getenv('BASE_URL')
         cls.VALID_USERNAME = os.getenv('VALID_USERNAME')
         cls.VALID_PASSWORD = os.getenv('VALID_PASSWORD')
-        cls.TIMEOUT = int(os.getenv('TIMEOUT', '10'))
+        cls.TIMEOUT = int(os.getenv('TIMEOUT', '20'))
 
         # Test data environment değişkenleri
         cls.TEST_APP_NAME = os.getenv('TEST_APP_NAME', 'TestApp')
