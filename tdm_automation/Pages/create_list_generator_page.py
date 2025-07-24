@@ -223,50 +223,126 @@ class CreateListGenerator(BasePage):
     def click_environment_dropdown(self):
         """Environment dropdown'ını aç"""
         print("Environment dropdown açılıyor")
-        return self.click_element(self.ENVIRONMENT_DROPDOWN)
+        try:
+            wait = WebDriverWait(self.driver, 10)
+
+            # Element'in bulunmasını bekle
+            dropdown_element = wait.until(EC.presence_of_element_located(self.ENVIRONMENT_DROPDOWN))
+
+            # Element'in tıklanabilir olmasını bekle
+            clickable_element = wait.until(EC.element_to_be_clickable(self.ENVIRONMENT_DROPDOWN))
+
+            # Scroll to element
+            self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", clickable_element)
+            time.sleep(0.5)
+
+            # Önce normal tıklama dene
+            try:
+                clickable_element.click()
+                print("Normal tıklama başarılı")
+            except:
+                # JavaScript ile tıkla
+                print("JavaScript ile tıklanıyor")
+                self.driver.execute_script("arguments[0].click();", clickable_element)
+
+            time.sleep(1)
+
+            # Dropdown açıldığını kontrol et
+            try:
+                WebDriverWait(self.driver, 5).until(
+                    EC.presence_of_element_located((By.XPATH, "//div[contains(@class, 'ant-select-dropdown')]"))
+                )
+                print("Dropdown başarıyla açıldı")
+                return True
+            except:
+                print("Dropdown açılmadı")
+                return False
+
+        except Exception as e:
+            print(f"Dropdown tıklama hatası: {e}")
+            return False
 
     def select_environment_postgres(self):
         """AAAdene environment'ını seç - Arrow keys + Doğru text okuma"""
         print("AAAdene environment seçiliyor")
-        if self.click_environment_dropdown():
+
+        # Debug: Dropdown tıklama başarısını kontrol et
+        dropdown_clicked = self.click_environment_dropdown()
+        print(f"Dropdown tıklama sonucu: {dropdown_clicked}")
+
+        if dropdown_clicked:
             try:
                 print("Environment dropdown açılıyor")
-                dropdown_input = WebDriverWait(self.driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH,
-                                                    "//div[contains(@class, 'ant-select-dropdown')]//div[contains(@class, 'ant-select-item')]"))
+
+                # Dropdown'un açılmasını biraz daha bekle
+                time.sleep(2)
+
+                # Dropdown item'ların yüklenmesini bekle
+                dropdown_items = WebDriverWait(self.driver, 15).until(
+                    EC.presence_of_all_elements_located((By.XPATH,
+                                                         "//div[contains(@class, 'ant-select-dropdown')]//div[contains(@class, 'ant-select-item')]"))
                 )
-                dropdown_input.click()
-                time.sleep(0.5)
+
+                print(f"Bulunan dropdown item sayısı: {len(dropdown_items)}")
+
+                # İlk item'a tıkla
+                if dropdown_items:
+                    dropdown_items[0].click()
+                    time.sleep(0.5)
+                else:
+                    raise Exception("Dropdown item'lar bulunamadı")
 
                 found = False
                 max_attempts = 60
-                for i in range(max_attempts):
-                    focused_elem = self.driver.switch_to.active_element
-                    focused_elem.send_keys(Keys.ARROW_DOWN)
 
+                for i in range(max_attempts):
                     try:
+                        # Active element kontrolü
+                        focused_elem = self.driver.switch_to.active_element
+                        focused_elem.send_keys(Keys.ARROW_DOWN)
+                        time.sleep(0.2)  # Biraz bekle
+
+                        # Current item'ı bul
                         current_item = self.driver.find_element(By.XPATH,
                                                                 "//div[contains(@class, 'ant-select-item-option-active') or contains(@class, 'ant-select-item-option-selected')]")
+
                         text = current_item.text.strip()
+                        print(f"{i + 1}. item: '{text}'")  # Debug için tüm text'leri yazdır
+
                         if "AAAdene" in text:
                             print("AAAdene bulundu! Tıklanıyor...")
-                            current_item.click()  # Direkt item'a tıkla
+
+                            # Enter tuşu ile seç (daha güvenli)
+                            focused_elem.send_keys(Keys.ENTER)
+                            time.sleep(1)
+
                             found = True
                             break
 
                     except Exception as text_error:
-                        # Text okunamazsa sadece devam et
-                        print(f"{i + 1}. odak: [text okunamadı]")
+                        print(f"{i + 1}. odak: [text okunamadı] - {str(text_error)}")
                         continue
 
                 if not found:
+                    # Debug: Ekran görüntüsü al
+                    self.driver.save_screenshot("environment_dropdown_debug.png")
                     raise Exception("AAAdene bulunamadı")
+
                 return True
 
             except Exception as e:
                 print(f"Environment seçim hatası: {e}")
+                # Debug: Sayfa HTML'ini yazdır
+                print("Sayfa HTML (dropdown kısmı):")
+                try:
+                    dropdown_html = self.driver.find_element(By.XPATH, "//div[contains(@class, 'ant-select-dropdown')]")
+                    print(dropdown_html.get_attribute('innerHTML')[:500])  # İlk 500 karakter
+                except:
+                    print("Dropdown HTML alınamadı")
                 return False
-        return False
+        else:
+            print("Dropdown tıklanamadı - click_environment_dropdown() False döndü")
+            return False
 
     def enter_sql_query(self, sql_query):
         """SQL query text area'ya kod gir"""
