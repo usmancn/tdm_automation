@@ -6,8 +6,11 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
-from Pages.login_page import LoginPage
+from tdm_automation.Pages.login_page import LoginPage
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 
 load_dotenv()
 
@@ -23,9 +26,36 @@ class TestLoginScenarios:
         self.INVALID_PASSWORD = os.getenv('INVALID_PASSWORD')
         self.TIMEOUT = int(os.getenv('TIMEOUT', '10'))
 
+        # Environment değişkenlerini al
+        self.HEADLESS = os.getenv('HEADLESS', 'false').lower() == 'true'
+        self.DOCKER_MODE = os.getenv('DOCKER_MODE', 'false').lower() == 'true'
+
+        # Chrome options - Docker ve headless için optimize edilmiş
+        self.chrome_options = Options()
+
+        if self.HEADLESS:
+            self.chrome_options.add_argument("--headless")
+            print("HEADLESS modda çalışıyor")
+
+        if self.DOCKER_MODE:
+            # Docker için gerekli argumentlar
+            self.chrome_options.add_argument("--no-sandbox")
+            self.chrome_options.add_argument("--disable-dev-shm-usage")
+            self.chrome_options.add_argument("--disable-gpu")
+            self.chrome_options.add_argument("--remote-debugging-port=9222")
+            print("DOCKER modda çalışıyor")
+        else:
+            # Local development için
+            self.chrome_options.add_argument("--incognito")
+
+        # Genel performans ayarları
+        self.chrome_options.add_argument("--window-size=1920,1080")
+        self.chrome_options.add_argument("--disable-web-security")
+        self.chrome_options.add_argument("--ignore-certificate-errors")
+
         # WebDriver kurulumu
         self.service = Service(ChromeDriverManager().install())
-        self.driver = webdriver.Chrome(service=self.service)
+        self.driver = webdriver.Chrome(service=self.service,options=self.chrome_options)
         self.login_page = LoginPage(self.driver)
 
 
@@ -111,15 +141,22 @@ class TestLoginScenarios:
 
         assert self.login_page.wait_for_url_contains("/WebConsole/"), "Başarılı login sonrası ana sayfaya gelinmedi"
 
-        page_source = self.driver.page_source.lower()
+        tdm_locator = (By.XPATH, "//li[@title='New Test Data Manager'][2]")
 
-        if "new test data manager" in page_source:
+        try:
+            print("TDM elementi bekleniyor...")
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located(tdm_locator)
+            )
             print("New Test Data Manager bulundu!")
 
-            tdm_locator = (By.XPATH, "//li[@title='New Test Data Manager'][2]")
             success = self.login_page.click_element(tdm_locator)
-
             assert success, "TDM elementine tıklanamadı"
             print(f"Tıklandı! Yeni URL: {self.driver.current_url}")
-        else:
-            assert False, "New Test Data Manager modülü bulunamadı"
+
+        except TimeoutException:
+            print("New Test Data Manager DOM'da bulunamadı!")
+            self.driver.save_screenshot("tdm_not_found.png")
+            with open("tdm_debug_page.html", "w", encoding="utf-8") as f:
+                f.write(self.driver.page_source)
+            assert False, "New Test Data Manager modülü DOM'da bulunamadı (timeout)"

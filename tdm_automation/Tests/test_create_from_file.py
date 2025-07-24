@@ -6,10 +6,10 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
-from Pages.login_page import LoginPage
-from Pages.tdm_dashboard_page import TDMDashboardPage
-from Pages.list_generator_page import ListGeneratorPage
-from Pages.create_list_generator_page import CreateListGenerator
+from tdm_automation.Pages.login_page import LoginPage
+from tdm_automation.Pages.tdm_dashboard_page import TDMDashboardPage
+from tdm_automation.Pages.list_generator_page import ListGeneratorPage
+from tdm_automation.Pages.create_list_generator_page import CreateListGenerator
 from selenium.webdriver.chrome.options import Options
 
 load_dotenv()
@@ -31,9 +31,32 @@ class TestCreateFromFileTab:
         # Test data environment değişkenleri
         cls.TEST_LIST_NAME = os.getenv('TEST_LIST_NAME', 'ListName')
 
-        # Chrome options - Gizli sekme
+        # Environment değişkenlerini al
+        cls.HEADLESS = os.getenv('HEADLESS', 'false').lower() == 'true'
+        cls.DOCKER_MODE = os.getenv('DOCKER_MODE', 'false').lower() == 'true'
+
+        # Chrome options - Docker ve headless için optimize edilmiş
         cls.chrome_options = Options()
-        cls.chrome_options.add_argument("--incognito")
+
+        if cls.HEADLESS:
+            cls.chrome_options.add_argument("--headless")
+            print("HEADLESS modda çalışıyor")
+
+        if cls.DOCKER_MODE:
+            # Docker için gerekli argumentlar
+            cls.chrome_options.add_argument("--no-sandbox")
+            cls.chrome_options.add_argument("--disable-dev-shm-usage")
+            cls.chrome_options.add_argument("--disable-gpu")
+            cls.chrome_options.add_argument("--remote-debugging-port=9222")
+            print("DOCKER modda çalışıyor")
+        else:
+            # Local development için
+            cls.chrome_options.add_argument("--incognito")
+
+        # Genel performans ayarları
+        cls.chrome_options.add_argument("--window-size=1920,1080")
+        cls.chrome_options.add_argument("--disable-web-security")
+        cls.chrome_options.add_argument("--ignore-certificate-errors")
 
         # WebDriver kurulumu
         cls.service = Service(ChromeDriverManager().install())

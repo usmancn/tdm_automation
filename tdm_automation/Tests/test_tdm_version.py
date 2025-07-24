@@ -6,9 +6,9 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
-from Pages.login_page import LoginPage
-from Pages.tdm_dashboard_page import TDMDashboardPage
-from Pages.product_info_page import ProductInfoPage
+from tdm_automation.Pages.login_page import LoginPage
+from tdm_automation.Pages.tdm_dashboard_page import TDMDashboardPage
+from tdm_automation.Pages.product_info_page import ProductInfoPage
 from selenium.webdriver.chrome.options import Options
 
 
@@ -25,9 +25,32 @@ class TestTDMVersionControl:
        self.VALID_PASSWORD = os.getenv('VALID_PASSWORD')
        self.TIMEOUT = int(os.getenv('TIMEOUT', '10'))
 
+       # Chrome options - Docker ve headless için optimize edilmiş
+       self.chrome_options = Options()
+
+       if self.HEADLESS:
+           self.chrome_options.add_argument("--headless")
+           print("HEADLESS modda çalışıyor")
+
+       if self.DOCKER_MODE:
+           # Docker için gerekli argumentlar
+           self.chrome_options.add_argument("--no-sandbox")
+           self.chrome_options.add_argument("--disable-dev-shm-usage")
+           self.chrome_options.add_argument("--disable-gpu")
+           self.chrome_options.add_argument("--remote-debugging-port=9222")
+           print("DOCKER modda çalışıyor")
+       else:
+           # Local development için
+           self.chrome_options.add_argument("--incognito")
+
+       # Genel performans ayarları
+       self.chrome_options.add_argument("--window-size=1920,1080")
+       self.chrome_options.add_argument("--disable-web-security")
+       self.chrome_options.add_argument("--ignore-certificate-errors")
+
        # WebDriver kurulumu
        self.service = Service(ChromeDriverManager().install())
-       self.driver = webdriver.Chrome(service=self.service)
+       self.driver = webdriver.Chrome(service=self.service, options=self.chrome_options)
        self.login_page = LoginPage(self.driver)
        self.dashboard_page = TDMDashboardPage(self.driver)
        self.product_info_page = ProductInfoPage(self.driver)
