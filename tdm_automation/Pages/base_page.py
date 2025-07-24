@@ -23,13 +23,12 @@ class BasePage:
             print(f"Element bulunamadı: {locator}")
             return None
 
-    # tdm_automation/Pages/base_page.py dosyasındaki click_element metodunu güncelleyin:
-
     def click_element(self, locator):
-        """Element'e tıkla - Headless mod için optimize edilmiş"""
         try:
-            # Önce normal click dene
             element = self.wait.until(EC.element_to_be_clickable(locator))
+            # Elemente scroll yap
+            self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
+            time.sleep(0.5)  # animasyon, overlay vs için bekle
             element.click()
             return True
         except TimeoutException:
@@ -38,7 +37,6 @@ class BasePage:
         except Exception as e:
             print(f"Click hatası, JavaScript ile deneniyor: {e}")
             try:
-                # JavaScript ile click dene
                 element = self.wait.until(EC.presence_of_element_located(locator))
                 self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
                 time.sleep(0.5)

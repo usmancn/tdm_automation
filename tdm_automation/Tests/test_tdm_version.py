@@ -43,6 +43,7 @@ class TestTDMVersionControl:
            self.chrome_options.add_argument("--disable-gpu")
            self.chrome_options.add_argument("--remote-debugging-port=9222")
            self.chrome_options.add_argument("--incognito")
+
            print("DOCKER modda çalışıyor")
        else:
            # Local development için
@@ -54,6 +55,7 @@ class TestTDMVersionControl:
        self.chrome_options.add_argument("--ignore-certificate-errors")
 
        # WebDriver kurulumu
+
        self.service = Service(ChromeDriverManager().install())
        self.driver = webdriver.Chrome(service=self.service, options=self.chrome_options)
        self.login_page = LoginPage(self.driver)

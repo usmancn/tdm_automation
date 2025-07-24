@@ -21,42 +21,19 @@ class AppManagementPage(BasePage):
     def __init__(self,driver):
         super().__init__(driver)
 
-    from selenium.webdriver.common.by import By
 
     def click_appman(self):
-        """App Management sayfasına geç"""
+
+        """app man sayfasına geç"""
+
         print("app man sayfasına geçiliyor")
 
-        try:
-            WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located(self.APPMAN_BUTTON)
-            )
-            element = self.driver.find_element(*self.APPMAN_BUTTON)
-
-            # Footer'ı görünmez yap
-            self.driver.execute_script("""
-                let footer = document.querySelector('.sdm-footer');
-                if (footer) {
-                    footer.style.display = 'none';
-                    console.log('Footer gizlendi');
-                }
-            """)
-
-            # Scroll + JS click
-            self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
-            time.sleep(1)
-            try:
-                element.click()
-            except Exception as e:
-                print(f"Normal click başarısız: {e} - JS click deneniyor")
-                self.driver.execute_script("arguments[0].click();", element)
-
+        success = self.click_element(self.APPMAN_BUTTON)
+        if success:
             print("app man sayfasına başarıyla geçildi")
-            return True
-
-        except Exception as e:
-            print(f"app man sayfasına geçilemedi: {e}")
-            return False
+        else:
+            print("app man sayfasına geçilemedi")
+        return success
 
     def is_appman_loaded(self):
         """App Man'in yüklendiğini kontrol et"""
