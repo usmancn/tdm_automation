@@ -54,6 +54,8 @@ class TestAppManagement:
             cls.chrome_options.add_argument("--disable-dev-shm-usage")
             cls.chrome_options.add_argument("--disable-gpu")
             cls.chrome_options.add_argument("--remote-debugging-port=9222")
+            cls.chrome_options.add_argument("--incognito")
+
             print("DOCKER modda çalışıyor")
         else:
             # Local development için

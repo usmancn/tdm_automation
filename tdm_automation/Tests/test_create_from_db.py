@@ -57,6 +57,7 @@ class TestCreateFromDbTab:
         cls.chrome_options.add_argument("--window-size=1920,1080")
         cls.chrome_options.add_argument("--disable-web-security")
         cls.chrome_options.add_argument("--ignore-certificate-errors")
+        cls.chrome_options.add_argument("--incognito")
 
         # WebDriver kurulumu
         cls.service = Service(ChromeDriverManager().install())
