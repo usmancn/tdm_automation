@@ -27,7 +27,7 @@ jobs:
 
     - name: Run Selenium Tests in Docker
       run: |
-        mkdir reports
+        mkdir -p reports
         docker run --rm -v ${{ github.workspace }}/reports:/app/reports \
           --env-file tdm_automation/Tests/.env \
           tdm-selenium-tests
