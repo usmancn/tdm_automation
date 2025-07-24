@@ -8,7 +8,7 @@ on:
 
 jobs:
   selenium-tests:
-    runs-on: self-hosted  # ← Bu artık çalışacak!
+    runs-on: self-hosted
 
     steps:
     - name: Checkout code
@@ -23,12 +23,15 @@ jobs:
       run: docker build -t tdm-selenium-tests .
 
     - name: Create reports directory
-      run: mkdir -p reports
+      run: |
+        if (!(Test-Path "reports")) { 
+          mkdir reports 
+        }
 
     - name: Run Selenium Tests in Docker
       run: |
-        docker run --rm -v ${{ github.workspace }}/reports:/app/reports \
-          --env-file tdm_automation/Tests/.env \
+        docker run --rm -v ${{ github.workspace }}/reports:/app/reports `
+          --env-file tdm_automation/Tests/.env `
           tdm-selenium-tests
 
     - name: Upload HTML Report
