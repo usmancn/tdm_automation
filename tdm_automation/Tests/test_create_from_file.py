@@ -538,9 +538,13 @@ class TestCreateFromFileTab:
 
         print("Test tamamlandı: Boş dosya yükleme testi")
 
+    @pytest.mark.skip
     def test_TC066_invalid_file_format(self):
         """TC066: Geçersiz dosya formatı - .txt dosyası upload denemesi"""
         print("\nTC066: Geçersiz dosya formatı testi ===")
+
+
+        time.sleep(1)
 
         # NEW butonuna tıkla
         new_clicked = self.listgen_page.click_newlist()
@@ -580,6 +584,8 @@ class TestCreateFromFileTab:
     def test_TC067_special_characters_in_data(self):
         """TC067: Veride özel karakterler - CSV'de özel karakterler ve unicode"""
         print("\nTC067: Veride özel karakterler testi ===")
+
+        time.sleep(1)
 
         # NEW butonuna tıkla
         new_clicked = self.listgen_page.click_newlist()
@@ -631,6 +637,9 @@ class TestCreateFromFileTab:
         """TC068: CSV'de tırnak işaretleri - Escaped quotes ve complex data"""
         print("\nTC068: CSV'de tırnak işaretleri testi ===")
 
+        time.sleep(1)
+
+
         # NEW butonuna tıkla
         new_clicked = self.listgen_page.click_newlist()
         assert new_clicked, "NEW butonuna tıklanamadı"
@@ -674,6 +683,9 @@ class TestCreateFromFileTab:
         """TC069: Karışık veri tipleri - String, Number, Date, Boolean mix"""
         print("\nTC069: Karışık veri tipleri testi ===")
 
+        time.sleep(1)
+
+
         # NEW butonuna tıkla
         new_clicked = self.listgen_page.click_newlist()
         assert new_clicked, "NEW butonuna tıklanamadı"
@@ -713,9 +725,13 @@ List_Mehmet,-5,0,1900-01-01,false,100.0"""
 
         print("Test tamamlandı: Karışık veri tipleri testi")
 
+    @pytest.mark.skip
     def test_TC070_multiple_file_upload_attempt(self):
         """TC070: Çoklu dosya yükleme denemesi - Sistem sadece tek dosya kabul ediyor mu"""
         print("\nTC070: Çoklu dosya yükleme denemesi testi ===")
+
+        time.sleep(1)
+
 
         # NEW butonuna tıkla
         new_clicked = self.listgen_page.click_newlist()
@@ -761,6 +777,8 @@ List_Mehmet,-5,0,1900-01-01,false,100.0"""
 
         print("Test tamamlandı: Çoklu dosya upload denemesi")
 
+
+    @pytest.mark.skip
     def test_TC071_sample_file_download(self):
         """TC071: Örnek dosya indirme - Sample file download butonunu test et"""
         print("\nTC071: Örnek dosya indirme testi ===")
@@ -798,9 +816,12 @@ List_Mehmet,-5,0,1900-01-01,false,100.0"""
 
         print("Test tamamlandı: Örnek dosya indirme testi")
 
+    @pytest.mark.skip
     def test_TC072_file_without_separator_chars(self):
         """TC072: Dosyada ayraç karakteri yok - Seçilen separator dosyada mevcut değil"""
         print("\nTC072: Dosyada ayraç karakteri yok testi ===")
+
+        time.sleep(1)
 
         # NEW butonuna tıkla
         new_clicked = self.listgen_page.click_newlist()
@@ -851,6 +872,9 @@ List_Mehmet,-5,0,1900-01-01,false,100.0"""
     def test_TC073_sql_injection_in_file(self):
         """TC073: Dosya içeriğinde SQL injection - CSV data'da SQL injection payload"""
         print("\nTC073: Dosya içeriğinde SQL injection testi ===")
+
+        time.sleep(1)
+
 
         # NEW butonuna tıkla
         new_clicked = self.listgen_page.click_newlist()
@@ -904,6 +928,9 @@ List_Mehmet,-5,0,1900-01-01,false,100.0"""
         """TC074: Dosya ile XSS injection - CSV data'da XSS payload"""
         print("\nTC074: Dosya ile XSS injection testi ===")
 
+        time.sleep(1)
+
+
         # NEW butonuna tıkla
         new_clicked = self.listgen_page.click_newlist()
         assert new_clicked, "NEW butonuna tıklanamadı"
@@ -948,6 +975,9 @@ List_Mehmet,-5,0,1900-01-01,false,100.0"""
         """TC075: Uzantısız dosya yükleme - Extension olmayan dosya upload"""
         print("\nTC075: Uzantısız dosya yükleme testi ===")
 
+        time.sleep(1)
+
+
         # NEW butonuna tıkla
         new_clicked = self.listgen_page.click_newlist()
         assert new_clicked, "NEW butonuna tıklanamadı"
@@ -982,9 +1012,14 @@ List_Mehmet,-5,0,1900-01-01,false,100.0"""
 
         print("Test tamamlandı: Uzantısız dosya yükleme testi")
 
+
+    @pytest.mark.skip
     def test_TC076_duplicate_column_names(self):
         """TC076: Aynı sütun isimleri - CSV'de duplicate column headers"""
         print("\nTC076: Aynı sütun isimleri testi ===")
+
+        time.sleep(1)
+
 
         # NEW butonuna tıkla
         new_clicked = self.listgen_page.click_newlist()

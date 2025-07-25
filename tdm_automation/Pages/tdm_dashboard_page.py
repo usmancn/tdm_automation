@@ -9,6 +9,7 @@ class TDMDashboardPage(BasePage):
     APPMAN_BUTTON = (By.XPATH,"//span[text()='APPLICATION MANAGEMENT']")
     FLOWMAN_BUTTON = (By.XPATH,"//span[text()='FLOW MANAGEMENT']")
     LISTGEN_BUTTON = (By.XPATH,"//span[text()='List Generator']")
+    SYNFLOW_BUTTON = (By.XPATH, "//span[text()='Synthetic Flow List']")
     DATACASE_BUTTON = (By.XPATH,"//span[text()='DATA GENERATION CASE']")
 
 
@@ -69,6 +70,19 @@ class TDMDashboardPage(BasePage):
             print("List Generator butonuna başarıyla tıklandı")
         else:
             print("List Generator butonuna tıklanamadı")
+        return success
+
+    def click_syn_flow(self):
+
+        """ Syn Flow'a tıkla"""
+
+        self.click_flow_managemnet()
+
+        success = self.click_element((self.SYNFLOW_BUTTON))
+        if success:
+            print("Syn Flow butonuna başarıyla tıklandı")
+        else:
+            print("Syn Flow butonuna tıklanamadı")
         return success
 
     def click_data_generation_case(self):

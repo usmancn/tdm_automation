@@ -1,4 +1,4 @@
-# Python 3.13 imajını kullan (sizin Python versiyonunuz)
+# Python 3.13 imajını kullan
 FROM python:3.13-slim
 
 # Sistem paketlerini güncelle ve gerekli paketleri yükle
@@ -78,11 +78,7 @@ RUN useradd -m testuser && chown -R testuser:testuser /app
 # Reports dizinini oluştur
 RUN mkdir -p /app/reports && chown -R testuser:testuser /app/reports
 
-CMD ["pytest", \
-     "tdm_automation/Tests/test_create_from_db.py", \
-     "--html=reports/report.html", \
-     "--self-contained-html", \
-     "-v", \
-     "--tb=short"]
+CMD ["pytest", "tdm_automation/Tests", "--html=reports/report.html", "--self-contained-html", "-v", "--tb=short"]
+
 
 

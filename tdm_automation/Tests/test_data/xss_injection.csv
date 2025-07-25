@@ -1,0 +1,4 @@
+List_Name,List_Script,List_Html
+"List_Alert","<script>alert('XSS')</script>","<img src=x onerror=alert(1)>"
+"List_Iframe","<iframe src=javascript:alert('XSS')>","<svg onload=alert('XSS')>"
+"List_Normal","List_RegularName","List_RegularData"

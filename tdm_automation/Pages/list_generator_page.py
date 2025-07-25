@@ -1,5 +1,10 @@
+import time
+
 from selenium.webdriver.common.by import By
 from .base_page import BasePage
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 
 
 
@@ -12,18 +17,46 @@ class ListGeneratorPage(BasePage):
     def __init__(self,driver):
         super().__init__(driver)
 
-
     def click_newlist(self):
+        try:
+            wait = WebDriverWait(self.driver, 10)
 
-        """New butonuna tıkla"""
-        print("New List Generator butonuna tıklanıyor")
+            # === Eğer modal varsa kapat ===
+            try:
+                modal_close = WebDriverWait(self.driver, 3).until(
+                    EC.element_to_be_clickable((By.XPATH, "//button[contains(@class, 'modal-close')]"))
+                )
+                print("Modal bulundu, kapatılıyor.")
+                modal_close.click()
+                time.sleep(1)
+            except:
+                print("Modal bulunamadı, devam ediliyor.")
 
-        success = self.click_element(self.NEW_BUTTON)
-        if success:
-            print("New butonuna başarıyla tıklandı")
-        else:
-            print("New butonuna tıklanamadı")
-        return success
+            # === Canvas ya da benzeri engelleyici varsa gizlenmesini bekle ===
+            try:
+                WebDriverWait(self.driver, 5).until(
+                    EC.invisibility_of_element_located((By.CSS_SELECTOR, "canvas"))
+                )
+            except:
+                print("Canvas görünür olabilir ama devam ediliyor.")
+
+            # === NEW butonunu al ===
+            new_button = wait.until(
+                EC.presence_of_element_located((By.XPATH, "//span[text()='NEW']"))
+            )
+
+            # === Görünür hale getir ===
+            self.driver.execute_script("arguments[0].scrollIntoView(true);", new_button)
+            time.sleep(0.5)
+
+            # === JavaScript ile zorla tıkla ===
+            self.driver.execute_script("arguments[0].click();", new_button)
+            print("NEW butonuna JavaScript ile tıklandı.")
+            return True
+
+        except Exception as e:
+            print(f"NEW butonuna tıklama başarısız: {e}")
+            return False
 
     def click_deletelist_andconfirm_button(self,projectname):
 
