@@ -78,7 +78,17 @@ RUN useradd -m testuser && chown -R testuser:testuser /app
 # Reports dizinini oluştur
 RUN mkdir -p /app/reports && chown -R testuser:testuser /app/reports
 
-CMD ["pytest", "tdm_automation/Tests", "--html=reports/report.html", "--self-contained-html", "-v", "--tb=short"]
+CMD pytest tdm_automation/Tests/test_appmanagement.py --html=reports/report_appmanagement.html --self-contained-html -v --tb=short && \
+    pytest tdm_automation/Tests/test_create_from_db.py --html=reports/report_create_from_db.html --self-contained-html -v --tb=short && \
+    pytest tdm_automation/Tests/test_create_from_file.py --html=reports/report_create_from_file.html --self-contained-html -v --tb=short && \
+    pytest tdm_automation/Tests/test_create_new.py --html=reports/report_create_new.html --self-contained-html -v --tb=short && \
+    pytest tdm_automation/Tests/test_data_generation_case.py --html=reports/report_data_generation_case.html --self-contained-html -v --tb=short && \
+    pytest tdm_automation/Tests/test_generate_with_ai.py --html=reports/report_generate_with_ai.html --self-contained-html -v --tb=short && \
+    pytest tdm_automation/Tests/test_login.py --html=reports/report_login.html --self-contained-html -v --tb=short && \
+    pytest tdm_automation/Tests/test_synthetic_flow_list.py --html=reports/report_synthetic_flow_list.html --self-contained-html -v --tb=short && \
+    pytest tdm_automation/Tests/test_tdm_version.py --html=reports/report_tdm_version.html --self-contained-html -v --tb=short
+
+
 
 
 
